@@ -1,0 +1,40 @@
+{
+  "name": "@kylebrodeur/type-safe-mapping",
+  "version": "0.1.0",
+  "description": "Zero-duplication field mapping for TypeScript with full type safety and inference",
+  "keywords": [
+    "typescript",
+    "mapping",
+    "type-safe",
+    "field-mapping",
+    "zero-duplication",
+    "bidirectional"
+  ],
+  "author": "Kyle Brodeur",
+  "license": "MIT",
+  "type": "module",
+  "private": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kylebrodeur/type-safe-mapping.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kylebrodeur/type-safe-mapping/issues"
+  },
+  "homepage": "https://github.com/kylebrodeur/type-safe-mapping#readme",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
