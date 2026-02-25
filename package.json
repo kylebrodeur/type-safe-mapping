@@ -8,7 +8,17 @@
     "type-safe",
     "field-mapping",
     "zero-duplication",
-    "bidirectional"
+    "bidirectional",
+    "api-mapping",
+    "dto",
+    "data-transformation",
+    "type-inference",
+    "type-safety",
+    "domain-model",
+    "snake-case",
+    "camel-case",
+    "orm",
+    "serialization"
   ],
   "author": "Kyle Brodeur",
   "license": "MIT",
@@ -16,10 +26,12 @@
   "private": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kylebrodeur/type-safe-mapping.git"
+    "url": "https://github.com/kylebrodeur/t,
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"ype-safe-mapping.git"
   },
   "bugs": {
     "url": "https://github.com/kylebrodeur/type-safe-mapping/issues"

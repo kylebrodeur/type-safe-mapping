@@ -33,4 +33,3 @@ build/
 # Cache
 .cache/
 .eslintcache
-.agent/
