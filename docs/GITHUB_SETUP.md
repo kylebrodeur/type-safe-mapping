@@ -41,19 +41,11 @@ Zero-duplication field mapping for TypeScript with full type safety and inferenc
 
 This allows users to ask questions and share use cases.
 
-## 4. Configure GitHub Actions
-
-The CI workflow is already set up in `.github/workflows/ci.yml`. To make it work:
-
-1. Make sure your tests pass locally: `npm test`
-2. Push your changes
-3. The workflow will run automatically on push and PR
-
-## 5. Add Status Badges
+## 4. Add Status Badges
 
 The README already includes badge placeholders. After publishing to npm, they will automatically work.
 
-## 6. Create a Release
+## 5. Create a Release
 
 To create your first release:
 
@@ -75,7 +67,7 @@ Then on GitHub:
 4. Description: Copy from CHANGELOG.md
 5. Click "Publish release"
 
-## 7. Publish to npm
+## 6. Publish to npm
 
 ```bash
 # Make sure you're logged in to npm
@@ -88,13 +80,13 @@ npm run build
 npm publish
 ```
 
-## 8. Add to npm Package Registries
+## 7. Add to npm Package Registries
 
 After publishing, your package will appear on:
 - https://www.npmjs.com/package/@kylebrodeur/type-safe-mapping
 - https://www.jsdelivr.com/package/npm/@kylebrodeur/type-safe-mapping
 
-## 9. Share Your Package
+## 8. Share Your Package
 
 Share on:
 - Twitter/X with hashtags: #TypeScript #JavaScript #OpenSource
@@ -102,7 +94,7 @@ Share on:
 - Dev.to: Write a blog post about your package
 - TypeScript Discord communities
 
-## 10. Monitor and Maintain
+## 9. Monitor and Maintain
 
 - Watch for GitHub issues
 - Review pull requests
@@ -123,13 +115,13 @@ gh repo edit kylebrodeur/type-safe-mapping \
   --add-topic data-transformation
 ```
 
-## Automation Ideas
+## Optional Automation
 
-Consider adding these GitHub Actions workflows:
+Consider setting up:
 
-- **Automated releases**: Use semantic-release
-- **Dependency updates**: Use Dependabot
-- **Code coverage**: Upload coverage to Codecov
+- **Automated releases**: Use semantic-release for automated versioning
+- **Dependency updates**: Enable Dependabot in repository settings
+- **Code coverage**: Upload coverage reports to Codecov
 - **Documentation**: Auto-generate and deploy docs to GitHub Pages
 
-All workflow templates are available in the `.github/workflows/` directory.
+Note: This package is part of a workspace and doesn't include standalone CI workflows.
