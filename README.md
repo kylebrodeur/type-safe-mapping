@@ -1,4 +1,4 @@
-# @kylebrodeur/type-safe-mapping
+# Type Safe Mapping
 
 [![npm version](https://badge.fury.io/js/@kylebrodeur%2Ftype-safe-mapping.svg)](https://www.npmjs.com/package/@kylebrodeur/type-safe-mapping)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -45,7 +45,7 @@ kylebrodeur
 ### Basic Usage
 
 ```typescript
-import { MappedServiceBase, MappedType } from '@workspace/type-safe-mapping';
+import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';
 
 // 1. Define your source type (e.g., API response)
 interface ApiRow {
@@ -215,4 +215,4 @@ MIT © [Kyle Brodeur](https://github.com/kylebrodeur)
 
 ---
 
-**[⬆ back to top](#kylebrodeurtype-safe-mapping)**
+**[⬆ back to top](#type-safe-mapping)**
