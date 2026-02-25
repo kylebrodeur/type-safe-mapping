@@ -1,6 +1,6 @@
 # API Reference
 
-Complete type-level and runtime API documentation for `@workspace/type-safe-mapping`.
+Complete type-level and runtime API documentation for `@kylebrodeur/type-safe-mapping`.
 
 ## Exports
 
@@ -398,7 +398,7 @@ Common TypeScript errors and their meanings:
 
 **Cause:** Import missing or incorrect
 
-**Solution:** Import from `@workspace/type-safe-mapping`
+**Solution:** Import from `@kylebrodeur/type-safe-mapping`
 
 ---
 

@@ -57,7 +57,7 @@ const fieldMapping = {
 ### Step 3: (Optional) Infer the Mapped Type
 
 ```typescript
-import { MappedType } from '@workspace/type-safe-mapping';
+import { MappedType } from '@kylebrodeur/type-safe-mapping';
 
 type Domain = MappedType<ApiRow, typeof fieldMapping>;
 // Result: { isEnterprise: boolean; commerceType: string; }
@@ -66,7 +66,7 @@ type Domain = MappedType<ApiRow, typeof fieldMapping>;
 ### Step 4: Create Mapper Service
 
 ```typescript
-import { MappedServiceBase } from '@workspace/type-safe-mapping';
+import { MappedServiceBase } from '@kylebrodeur/type-safe-mapping';
 
 class UserMapper extends MappedServiceBase<ApiRow, typeof fieldMapping> {
   protected fieldMapping = fieldMapping;
@@ -181,7 +181,7 @@ Always validate type inference with tests:
 
 ```typescript
 import { expectTypeOf } from 'vitest';
-import { MappedType } from '@workspace/type-safe-mapping';
+import { MappedType } from '@kylebrodeur/type-safe-mapping';
 
 // Ensure mapped type is correct
 type Result = MappedType<ApiRow, typeof fieldMapping>;

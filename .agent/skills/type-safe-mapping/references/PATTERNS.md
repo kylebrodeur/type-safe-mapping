@@ -1,6 +1,6 @@
 # Advanced Usage Patterns
 
-Real-world patterns and examples for `@workspace/type-safe-mapping`.
+Real-world patterns and examples for `@kylebrodeur/type-safe-mapping`.
 
 ## Table of Contents
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-`@workspace/type-safe-mapping` is a zero-duplication TypeScript library for type-safe field mapping between different object schemas (e.g., API responses ↔ domain models). It uses TypeScript's type system to automatically infer mapped types from field mapping definitions, eliminating manual type definitions and ensuring type safety.
+`@kylebrodeur/type-safe-mapping` is a zero-duplication TypeScript library for type-safe field mapping between different object schemas (e.g., API responses ↔ domain models). It uses TypeScript's type system to automatically infer mapped types from field mapping definitions, eliminating manual type definitions and ensuring type safety.
 
 **Key Concept:** Define field mappings once with `as const`, extend `MappedServiceBase`, and get fully type-safe bidirectional transformations automatically.
 

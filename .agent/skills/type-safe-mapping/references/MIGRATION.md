@@ -1,6 +1,6 @@
 # Migration Guide
 
-How to migrate from manual field mapping to `@workspace/type-safe-mapping`.
+How to migrate from manual field mapping to `@kylebrodeur/type-safe-mapping`.
 
 ## Table of Contents
 
@@ -60,7 +60,7 @@ function reverseMapUser(user: User): ApiUser {
 
 ```typescript
 // After: Zero-duplication with type inference
-import { MappedServiceBase, MappedType } from '@workspace/type-safe-mapping';
+import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';
 
 interface ApiUser {
   user_id: string;
@@ -101,7 +101,7 @@ const api = mapper.reverseMap(user);   // User → ApiUser
 ### Step 1: Install Package
 
 ```bash
-pnpm add @workspace/type-safe-mapping
+pnpm add @kylebrodeur/type-safe-mapping
 ```
 
 ### Step 2: Identify Mapping Code
@@ -144,7 +144,7 @@ const productMapping = {
 ### Step 4: Create Mapper Class
 
 ```typescript
-import { MappedServiceBase, MappedType } from '@workspace/type-safe-mapping';
+import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';
 
 class ProductMapper extends MappedServiceBase<ApiProduct, typeof productMapping> {
   protected fieldMapping = productMapping;

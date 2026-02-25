@@ -16,7 +16,7 @@ if (!mapperName || !sourceTypeName) {
   process.exit(1);
 }
 
-const template = `import { MappedServiceBase, MappedType } from '@workspace/type-safe-mapping';
+const template = `import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';
 
 // TODO: Import your source type
 // import { ${sourceTypeName} } from './types';
