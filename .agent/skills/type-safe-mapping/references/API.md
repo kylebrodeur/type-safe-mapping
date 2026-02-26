@@ -33,6 +33,7 @@ type MappingDefinition<
 interface ApiUser {
   user_id: string;
   user_name: string;
+  [key: string]: unknown;
 }
 
 // Valid mapping
@@ -110,6 +111,7 @@ interface ApiUser {
   user_id: string;
   user_name: string;
   created_at: Date;
+  [key: string]: unknown;
 }
 
 const mapping = {
@@ -131,6 +133,7 @@ interface ApiData {
   optional_field?: string;
   union_field: 'A' | 'B';
   array_field: string[];
+  [key: string]: unknown;
 }
 
 const mapping = {

@@ -52,6 +52,7 @@ interface ApiRow {
   custom_a: boolean;
   custom_b: string;
   optional_c?: number;
+  [key: string]: unknown;
 }
 
 // 2. Define your field mapping with 'as const'
@@ -128,6 +129,7 @@ interface ApiUser {
   first_name: string;
   last_name: string;
   email_address: string;
+  [key: string]: unknown;
 }
 
 const userMapping = {
@@ -160,6 +162,7 @@ interface DbProduct {
   product_name: string;
   unit_price: number;
   is_active: boolean;
+  [key: string]: unknown;
 }
 
 const productMapping = {
@@ -182,6 +185,7 @@ interface StripeCustomer {
   email: string;
   created: number;
   default_source: string;
+  [key: string]: unknown;
 }
 
 const stripeMapping = {
@@ -195,6 +199,14 @@ const stripeMapping = {
 ## Important Notes
 
 - **Always use `as const`** on your field mapping definitions to preserve literal types
+- **Source types must include an index signature** `[key: string]: unknown` to satisfy TypeScript's constraints
+  ```typescript
+  interface ApiResponse {
+    field_one: string;
+    field_two: number;
+    [key: string]: unknown;  // ← Required
+  }
+  ```
 - Only mapped fields are included in the result (unmapped fields are ignored)
 - Optional fields in the source type are handled correctly
 - The mapper extends `MappedServiceBase` and must define `protected fieldMapping`

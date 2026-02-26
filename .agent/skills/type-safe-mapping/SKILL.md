@@ -3,7 +3,7 @@ name: type-safe-mapping
 description: Create zero-duplication TypeScript field mappings with automatic type inference. Use when transforming between different object schemas (API responses to domain models, database rows to DTOs, external data to internal structures). Eliminates manual type definitions and ensures bidirectional type safety.
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: '0.1.0'
   category: typescript-utilities
   keywords: typescript, mapping, type-safety, field-mapping, data-transformation
 ---
@@ -15,6 +15,7 @@ This skill helps you create type-safe, bidirectional field mappings in TypeScrip
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Transform API responses to domain models (and vice versa)
 - Map database rows to DTOs
 - Convert external data formats to internal structures
@@ -24,6 +25,7 @@ Use this skill when you need to:
 ## Core Concept
 
 Instead of manually writing:
+
 1. Field mapping logic
 2. Type definitions for mapped objects
 3. Reverse mapping logic
@@ -34,12 +36,15 @@ You define field mappings **once** with `as const`, and TypeScript automatically
 
 ### Step 1: Define Your Source Type
 
+**IMPORTANT:** Source types must include an index signature `[key: string]: unknown`.
+
 ```typescript
 // Example: API response from external service
 interface ApiRow {
   custom_a: boolean;
   custom_b: string;
   optional_c?: number;
+  [key: string]: unknown; // ← Required for type safety
 }
 ```
 
@@ -49,9 +54,9 @@ interface ApiRow {
 
 ```typescript
 const fieldMapping = {
-  custom_a: 'isEnterprise',    // external → internal
+  custom_a: 'isEnterprise', // external → internal
   custom_b: 'commerceType',
-} as const;  // ← REQUIRED for type inference
+} as const; // ← REQUIRED for type inference
 ```
 
 ### Step 3: (Optional) Infer the Mapped Type
@@ -79,16 +84,16 @@ class UserMapper extends MappedServiceBase<ApiRow, typeof fieldMapping> {
 const mapper = new UserMapper();
 
 // External → Internal
-const domain = mapper.map({ 
-  custom_a: true, 
-  custom_b: 'B2B' 
+const domain = mapper.map({
+  custom_a: true,
+  custom_b: 'B2B',
 });
 // Result: { isEnterprise: true, commerceType: 'B2B' }
 
 // Internal → External
-const api = mapper.reverseMap({ 
-  isEnterprise: false, 
-  commerceType: 'B2C' 
+const api = mapper.reverseMap({
+  isEnterprise: false,
+  commerceType: 'B2C',
 });
 // Result: { custom_a: false, custom_b: 'B2C' }
 ```
@@ -130,7 +135,7 @@ const detailMapping = {
 
 class UserMapper extends MappedServiceBase<ApiUserDetail, typeof detailMapping> {
   protected fieldMapping = detailMapping;
-  
+
   // Use for list views with fewer fields
   private listMapper = new (class extends MappedServiceBase<ApiUserList, typeof listMapping> {
     protected fieldMapping = listMapping;
@@ -145,6 +150,7 @@ class UserMapper extends MappedServiceBase<ApiUserDetail, typeof detailMapping> 
 interface ApiResponse {
   required_field: string;
   optional_field?: number;
+  [key: string]: unknown;
 }
 
 const mapping = {
@@ -161,16 +167,21 @@ const mapping = {
    - Without it, TypeScript won't infer literal types
    - Type inference will fail silently
 
-2. **Field mappings are directional**
+2. **Source types must include an index signature**
+   - Add `[key: string]: unknown` to your interface
+   - This satisfies TypeScript's `Record<string, unknown>` constraint
+   - Without it, you'll get type errors
+
+3. **Field mappings are directional**
    - Format: `{ externalField: 'internalField' }`
    - External field names are keys
    - Internal field names are values
 
-3. **Only mapped fields are included**
+4. **Only mapped fields are included**
    - Unmapped fields from source are ignored
    - This is by design for selective transformations
 
-4. **Both methods return partial types**
+5. **Both methods return partial types**
    - `map()` returns `MappedType<TSource, TMapping>`
    - `reverseMap()` returns `Partial<TSource>`
    - Handle required fields in your service layer
@@ -194,12 +205,14 @@ expectTypeOf<Result>().toEqualTypeOf<{
 ## Scripts
 
 See the `scripts/` directory for helper utilities:
+
 - `generate-mapper.ts` - Generate mapper boilerplate from a mapping definition
 - `validate-mapping.ts` - Validate a field mapping at runtime
 
 ## Reference
 
 See `references/` for detailed documentation:
+
 - `API.md` - Complete API reference
 - `PATTERNS.md` - Advanced usage patterns
 - `MIGRATION.md` - Migration guide from manual mappings
@@ -207,13 +220,17 @@ See `references/` for detailed documentation:
 ## Troubleshooting
 
 **Problem:** Type inference not working
+
 - **Solution:** Ensure `as const` is on the field mapping definition
 
 **Problem:** TypeScript error "Type instantiation is excessively deep"
+
 - **Solution:** Break large mappings into smaller chunks
 
 **Problem:** Mapped type includes unexpected fields
+
 - **Solution:** Check that field mapping keys match source type exactly
 
 **Problem:** Optional fields causing type errors
+
 - **Solution:** Remember that unmapped optional fields are ignored; map them explicitly if needed

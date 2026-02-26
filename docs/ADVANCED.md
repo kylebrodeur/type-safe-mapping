@@ -127,6 +127,7 @@ interface ApiProduct {
   product_type: 'physical' | 'digital';
   weight?: number;
   download_url?: string;
+  [key: string]: unknown;
 }
 
 const productMapping = {

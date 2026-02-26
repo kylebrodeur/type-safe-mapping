@@ -14,6 +14,7 @@ interface ApiOrderResponse {
   order_total: number;
   is_paid: boolean;
   shipping_address?: string;
+  [key: string]: unknown;
 }
 
 // 2. Define your field mapping

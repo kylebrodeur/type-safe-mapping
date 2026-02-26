@@ -136,6 +136,7 @@ interface ApiOrganization {
   org_id: string;
   org_name: string;
   owner: ApiUser & { address: ApiAddress };
+  [key: string]: unknown;
 }
 
 class OrganizationMapper {
@@ -228,6 +229,7 @@ interface ApiUser {
   name: string;
   email?: string;
   phone?: string;
+  [key: string]: unknown;
 }
 
 const baseMapping = {

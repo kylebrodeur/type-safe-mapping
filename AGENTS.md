@@ -81,6 +81,15 @@ pnpm -r build && pnpm -r lint && pnpm -r test
 
 ⚠️ **Always use `as const`** on field mapping definitions - without it, TypeScript won't preserve literal types and type inference will fail
 
+⚠️ **Source types must include an index signature** - add `[key: string]: unknown` to your interface definitions:
+```typescript
+interface ApiRow {
+  custom_a: boolean;
+  custom_b: string;
+  [key: string]: unknown;  // ← Required for MappedServiceBase
+}
+```
+
 ⚠️ **Field mappings are one-way definitions** - map external field names to internal field names: `{ external_field: 'internalField' }`
 
 ⚠️ **Only mapped fields are transformed** - unmapped fields from the source are ignored in the output

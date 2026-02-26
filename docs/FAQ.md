@@ -35,6 +35,27 @@ This package might not be the best fit if:
 
 ## Technical Questions
 
+### Why do I need an index signature on my source types?
+
+The `MappedServiceBase` class requires source types to extend `Record<string, unknown>`, which means your interfaces need an index signature. This is necessary because the mapper uses dynamic property access:
+
+```typescript
+// ✅ Correct - includes index signature
+interface ApiResponse {
+  order_id: string;
+  customer_name: string;
+  [key: string]: unknown;  // Required
+}
+
+// ❌ Incorrect - will cause type errors
+interface ApiResponse {
+  order_id: string;
+  customer_name: string;
+}
+```
+
+Without the index signature, TypeScript cannot guarantee that the dynamic property access in the mapper is safe.
+
 ### Why do I need `as const` on my field mapping?
 
 The `as const` assertion tells TypeScript to preserve the exact literal types of the mapping. Without it, TypeScript would widen the types to `string`, and you'd lose the type inference.
@@ -147,6 +168,18 @@ class UserMapper extends MappedServiceBase<ApiUser, typeof mapping> {
 ```
 
 ## Troubleshooting
+
+### TypeScript says "Type 'X' does not satisfy the constraint 'Record<string, unknown>'"
+
+This means your source interface is missing an index signature. Add `[key: string]: unknown` to your interface:
+
+```typescript
+interface ApiResponse {
+  field_one: string;
+  field_two: number;
+  [key: string]: unknown;  // ← Add this
+}
+```
 
 ### TypeScript says "Type 'X' is not assignable to type 'Y'"
 
