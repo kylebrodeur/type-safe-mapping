@@ -29,9 +29,7 @@
   "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kylebrodeur/t,
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck && npm test && npm run build"ype-safe-mapping.git"
+    "url": "https://github.com/kylebrodeur/type-safe-mapping.git"
   },
   "bugs": {
     "url": "https://github.com/kylebrodeur/type-safe-mapping/issues"
@@ -41,7 +39,9 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "publishConfig": {
     "access": "public"
