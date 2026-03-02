@@ -15,6 +15,9 @@ Demonstrates the core functionality:
 You can run these examples using `ts-node` or by compiling them with TypeScript:
 
 ```bash
+# Install the package
+npm install @kylebrodeur/type-safe-mapping
+
 # Install ts-node if you haven't
 npm install -g ts-node
 
