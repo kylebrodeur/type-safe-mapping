@@ -1,6 +1,6 @@
 {
   "name": "@kylebrodeur/type-safe-mapping",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zero-duplication field mapping for TypeScript with full type safety and inference",
   "keywords": [
     "typescript",

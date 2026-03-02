@@ -1,4 +1,4 @@
-import { MappedType, MappingDefinition } from './types';
+import { MappedType, MappingDefinition } from './types.js';
 
 type MappingEntries<
   TSource extends Record<string, unknown>,

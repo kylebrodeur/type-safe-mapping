@@ -6,5 +6,5 @@
  * - Extend `MappedServiceBase` and implement `fieldMapping` to map external → internal keys.
  * - Use `map` to go from the external shape to the internal typed shape, and `reverseMap` to go back.
  */
-export { MappedServiceBase } from './MappedServiceBase';
-export type { MappedType, MappingDefinition, ReverseMapping } from './types';
+export { MappedServiceBase } from './MappedServiceBase.js';
+export type { MappedType, MappingDefinition, ReverseMapping } from './types.js';
