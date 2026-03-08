@@ -15,6 +15,7 @@ Transform data between different shapes (API ↔ Domain) without writing repetit
 - [Why?](#why)
 - [Quick Start](#quick-start)
 - [Key Features](#key-features)
+- [Dynamic Mapping](#dynamic-mapping)
 - [Use Cases](#use-cases)
 - [API Reference](#api-reference)
 - [Important Notes](#important-notes)
@@ -88,8 +89,49 @@ const api = mapper.reverseMap({ isEnterprise: false, commerceType: 'B2C' });
 - **Zero Duplication**: Define field mappings once, get TypeScript types automatically
 - **Full Type Safety**: TypeScript infers mapped types from your field mappings
 - **Bidirectional**: Map from external → internal and internal → external
+- **Dynamic Mapping**: Optionally pass through unmapped fields for partially-known schemas
 - **Optional Fields**: Handles optional values correctly in both directions
 - **Zero Dependencies**: No runtime dependencies
+
+## Dynamic Mapping
+
+When working with APIs or datasets where the schema is only partially known, you can use
+`{ dynamicMapping: true }` to copy unmapped fields through as-is rather than dropping them.
+
+```typescript
+const fieldMapping = {
+  custom_a: 'isEnterprise',
+} as const;
+
+class UserMapper extends MappedServiceBase<ApiRow, typeof fieldMapping> {
+  protected fieldMapping = fieldMapping;
+}
+
+const mapper = new UserMapper();
+
+const data = {
+  custom_a: true,
+  other_field: 'dynamic_value', // not in the mapping
+};
+
+// Without dynamicMapping (default) — unmapped fields are dropped
+mapper.map(data);
+// { isEnterprise: true }
+
+// With dynamicMapping — unmapped fields are passed through
+mapper.map(data, { dynamicMapping: true });
+// { isEnterprise: true, other_field: 'dynamic_value' }
+```
+
+The same option is available on `reverseMap()`:
+
+```typescript
+mapper.reverseMap({ isEnterprise: true, extra_info: 42 }, { dynamicMapping: true });
+// { custom_a: true, extra_info: 42 }
+```
+
+> **Note:** The `dynamicMapping` option is `false` by default. Enabling it is an explicit,
+> opt-in behaviour and introduces no breaking changes to existing code.
 
 ## API Reference
 
@@ -104,8 +146,16 @@ Abstract base class for creating type-safe field mappers.
 
 **Methods:**
 
-- `map(source: Partial<TSource>): MappedType<TSource, TMapping>` - Transform external to internal
-- `reverseMap(target: Partial<MappedType<TSource, TMapping>>): Partial<TSource>` - Transform internal to external
+- `map(source: Partial<TSource>, options?: MapOptions): MappedType<TSource, TMapping>` - Transform external to internal
+- `reverseMap(target: Partial<MappedType<TSource, TMapping>>, options?: MapOptions): Partial<TSource>` - Transform internal to external
+
+### `MapOptions`
+
+Options object accepted by `map()` and `reverseMap()`.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `dynamicMapping` | `boolean` | `false` | When `true`, fields not present in the mapping are copied through to the result unchanged. |
 
 ### `MappedType<TSource, M>`
 

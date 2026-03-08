@@ -17,3 +17,16 @@ export type MappedType<
 > = {
   [MappedKey in M[keyof M]]: TSource[ReverseMapping<TSource, M, MappedKey> & keyof TSource];
 };
+
+/** Options accepted by `map()` and `reverseMap()`. */
+export interface MapOptions {
+  /**
+   * When `true`, fields from the source that are not present in the field mapping are copied
+   * as-is into the result object. This is useful when working with partially-known schemas
+   * where unmapped fields should be preserved rather than dropped.
+   *
+   * @default false
+   */
+  dynamicMapping?: boolean;
+}
+
