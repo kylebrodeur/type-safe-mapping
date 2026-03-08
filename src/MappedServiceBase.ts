@@ -1,3 +1,4 @@
+import { MapOptions, validateMapping } from './validation.js';
 import { MappedType, MappingDefinition } from './types.js';
 
 type MappingEntries<
@@ -11,7 +12,19 @@ export abstract class MappedServiceBase<
 > {
   protected abstract fieldMapping: TMapping;
 
-  map(source: Partial<TSource>): MappedType<TSource, TMapping> {
+  map(source: Partial<TSource>, options: MapOptions = {}): MappedType<TSource, TMapping> {
+    if (options.validate) {
+      validateMapping(
+        source as Record<string, unknown>,
+        Object.keys(this.fieldMapping),
+        options,
+      );
+    }
+
+    if (options.validateWith) {
+      options.validateWith(source);
+    }
+
     const result = {} as MappedType<TSource, TMapping>;
 
     for (const [externalKey, internalKey] of Object.entries(this.fieldMapping) as MappingEntries<
@@ -27,7 +40,22 @@ export abstract class MappedServiceBase<
     return result;
   }
 
-  reverseMap(target: Partial<MappedType<TSource, TMapping>>): Partial<TSource> {
+  reverseMap(
+    target: Partial<MappedType<TSource, TMapping>>,
+    options: MapOptions = {},
+  ): Partial<TSource> {
+    if (options.validate) {
+      validateMapping(
+        target as Record<string, unknown>,
+        Object.values(this.fieldMapping) as string[],
+        options,
+      );
+    }
+
+    if (options.validateWith) {
+      options.validateWith(target);
+    }
+
     const result = {} as Partial<TSource>;
 
     for (const [externalKey, internalKey] of Object.entries(this.fieldMapping) as MappingEntries<

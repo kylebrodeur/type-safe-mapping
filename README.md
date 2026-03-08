@@ -15,6 +15,7 @@ Transform data between different shapes (API ↔ Domain) without writing repetit
 - [Why?](#why)
 - [Quick Start](#quick-start)
 - [Key Features](#key-features)
+- [Validation](#validation)
 - [Use Cases](#use-cases)
 - [API Reference](#api-reference)
 - [Important Notes](#important-notes)
@@ -90,6 +91,78 @@ const api = mapper.reverseMap({ isEnterprise: false, commerceType: 'B2C' });
 - **Bidirectional**: Map from external → internal and internal → external
 - **Optional Fields**: Handles optional values correctly in both directions
 - **Zero Dependencies**: No runtime dependencies
+- **Built-in Validation**: Lightweight runtime validation with no extra dependencies
+
+## Validation
+
+Pass `{ validate: true }` as a second argument to `map()` or `reverseMap()` to enable runtime
+validation. Validation is **disabled by default** to maintain full backward compatibility.
+
+### Field Presence
+
+When `validate: true`, all fields defined in your mapping must be present in the source object.
+
+```typescript
+const mapper = new UserMapper();
+
+// ✅ Passes — all mapped fields are present
+mapper.map({ custom_a: true, custom_b: 'B2B' }, { validate: true });
+
+// ❌ Throws: "Validation failed:\nMissing required field `custom_b` in source."
+mapper.map({ custom_a: true }, { validate: true });
+```
+
+### Unknown Fields
+
+By default, extra (unmapped) fields in the source are silently ignored. Set
+`allowUnknownFields: false` to throw instead.
+
+```typescript
+// ✅ Extra fields allowed by default
+mapper.map({ custom_a: true, custom_b: 'B2B', extra: 'ignored' }, { validate: true });
+
+// ❌ Throws: "Validation failed:\nUnmapped field `extra` is not allowed."
+mapper.map(
+  { custom_a: true, custom_b: 'B2B', extra: 'unexpected' },
+  { validate: true, allowUnknownFields: false },
+);
+```
+
+### Custom Validators
+
+Use `validateWith` to integrate any validation library (e.g. Zod, Yup) or your own logic.
+`validateWith` runs whenever it is provided, regardless of the `validate` flag.
+
+```typescript
+import { z } from 'zod';
+
+const schema = z.object({ custom_a: z.boolean(), custom_b: z.string() });
+
+// Runs the Zod schema parse as part of the mapping call
+mapper.map(data, {
+  validateWith: (source) => schema.parse(source),
+});
+```
+
+Throw an error inside `validateWith` to signal a validation failure:
+
+```typescript
+mapper.map(data, {
+  validateWith: (source) => {
+    if (typeof (source as ApiRow).custom_a !== 'boolean') {
+      throw new Error('custom_a must be a boolean');
+    }
+  },
+});
+```
+
+### Validation Options Summary
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `validate` | `boolean` | `false` | Enable built-in field-presence and unknown-field checks |
+| `allowUnknownFields` | `boolean` | `true` | Allow unmapped source fields when `validate: true` |
+| `validateWith` | `(data: unknown) => void` | — | Custom validator; runs whenever provided |
 
 ## API Reference
 
@@ -104,8 +177,35 @@ Abstract base class for creating type-safe field mappers.
 
 **Methods:**
 
-- `map(source: Partial<TSource>): MappedType<TSource, TMapping>` - Transform external to internal
-- `reverseMap(target: Partial<MappedType<TSource, TMapping>>): Partial<TSource>` - Transform internal to external
+- `map(source: Partial<TSource>, options?: MapOptions): MappedType<TSource, TMapping>` - Transform external to internal
+- `reverseMap(target: Partial<MappedType<TSource, TMapping>>, options?: MapOptions): Partial<TSource>` - Transform internal to external
+
+### `MapOptions`
+
+Options object accepted by `map()` and `reverseMap()`.
+
+```typescript
+interface MapOptions {
+  validate?: boolean;                      // Enable built-in validation (default: false)
+  allowUnknownFields?: boolean;            // Allow unmapped fields when validate: true (default: true)
+  validateWith?: (data: unknown) => void;  // Custom validator hook
+}
+```
+
+### `validateMapping(source, expectedKeys, options)`
+
+Standalone validation utility used internally by `MappedServiceBase`. Can also be called
+directly when you need finer control.
+
+```typescript
+import { validateMapping } from '@kylebrodeur/type-safe-mapping';
+
+validateMapping(
+  { custom_a: true, custom_b: 'B2B' }, // source object
+  ['custom_a', 'custom_b'],             // expected keys
+  { allowUnknownFields: false },        // options
+);
+```
 
 ### `MappedType<TSource, M>`
 
