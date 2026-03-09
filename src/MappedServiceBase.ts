@@ -11,10 +11,10 @@ export abstract class MappedServiceBase<
 > {
   protected abstract fieldMapping: TMapping;
 
-  map(source: Partial<TSource>, options?: MapOptions & { dynamicMapping?: false }): MappedType<TSource, TMapping>;
+  map(source: Partial<TSource>, options?: { dynamicMapping?: false }): MappedType<TSource, TMapping>;
   map(
     source: Partial<TSource>,
-    options: MapOptions & { dynamicMapping: true },
+    options: { dynamicMapping: true },
   ): MappedType<TSource, TMapping> & Record<string, unknown>;
   map(
     source: Partial<TSource>,
@@ -49,11 +49,11 @@ export abstract class MappedServiceBase<
 
   reverseMap(
     target: Partial<MappedType<TSource, TMapping>>,
-    options?: MapOptions & { dynamicMapping?: false },
+    options?: { dynamicMapping?: false },
   ): Partial<TSource>;
   reverseMap(
     target: Partial<MappedType<TSource, TMapping>> & Record<string, unknown>,
-    options: MapOptions & { dynamicMapping: true },
+    options: { dynamicMapping: true },
   ): Partial<TSource> & Record<string, unknown>;
   reverseMap(
     target: Partial<MappedType<TSource, TMapping>> & Record<string, unknown>,

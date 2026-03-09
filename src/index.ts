@@ -8,4 +8,4 @@
  * - Pass `{ dynamicMapping: true }` to `map()` or `reverseMap()` to copy unmapped fields through as-is.
  */
 export { MappedServiceBase } from './MappedServiceBase.js';
-export type { MapOptions, MappedType, MappingDefinition, ReverseMapping } from './types.js';
+export type { MapOptions, MappedType, MappingDefinition } from './types.js';

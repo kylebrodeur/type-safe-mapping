@@ -36,13 +36,13 @@ describe('MappedServiceBase', () => {
     expect(result).toEqual({ custom_a: false, custom_b: 'B2C' });
   });
 
-  it('handles optional values in map()', () => {
+  it('drops unmapped fields in map()', () => {
     const withOptional = mapper.map({ custom_a: true, custom_b: 'B2B', optional_c: 42 });
 
     expect(withOptional).toEqual({ isEnterprise: true, commerceType: 'B2B' });
   });
 
-  it('handles optional values in reverseMap()', () => {
+  it('drops unmapped fields in reverseMap()', () => {
     const result = mapper.reverseMap({ isEnterprise: true, commerceType: 'B2B' });
 
     expect(result).toEqual({ custom_a: true, custom_b: 'B2B' });
