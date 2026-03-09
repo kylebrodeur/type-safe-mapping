@@ -11,7 +11,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve, dirname, basename, extname } from 'node:path';
+import { resolve, dirname, basename, extname, relative } from 'node:path';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -95,9 +95,6 @@ function parseFields(body: string): InterfaceField[] {
     const optional = m[3] === '?';
     const type = m[4].trim();
 
-    // Skip index signatures like [key: string]: unknown
-    if (/^\[/.test(fieldName)) continue;
-
     fields.push({ name: fieldName, type, optional });
   }
 
@@ -147,6 +144,7 @@ function pairFields(
 
 function generateMapper(
   sourceFile: string,
+  outputFile: string,
   sourceIface: ParsedInterface,
   targetIface: ParsedInterface | null,
 ): string {
@@ -169,11 +167,13 @@ function generateMapper(
   const targetTypeName = targetIface?.name ?? `Mapped${sourceTypeName}`;
   const mapperClassName = `${sourceTypeName}Mapper`;
 
-  const sourceImportPath = basename(sourceFile, extname(sourceFile));
+  const relDir = relative(dirname(outputFile), dirname(sourceFile));
+  const relPath = (relDir === '' ? '.' : relDir) + '/' + basename(sourceFile, extname(sourceFile));
+  const sourceImportPath = relPath;
 
   const imports = [
     `import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';`,
-    `import type { ${sourceTypeName} } from './${sourceImportPath}.js';`,
+    `import type { ${sourceTypeName} } from '${sourceImportPath}.js';`,
     targetIface
       ? `// The target interface (${targetTypeName}) is inferred from the mapping below.`
       : null,
@@ -237,10 +237,20 @@ function main(argv: string[]): void {
   // Parse flags
   const stdoutFlag = args.includes('--stdout');
   const outIndex = args.indexOf('--out');
-  const outFile = outIndex !== -1 ? args[outIndex + 1] : null;
+  const outValueIndex = outIndex !== -1 ? outIndex + 1 : -1;
+  const outFile = outValueIndex !== -1 ? args[outValueIndex] : null;
 
-  // Positional args after the command
-  const positional = args.slice(1).filter((a) => !a.startsWith('--') && a !== outFile);
+  if (outIndex !== -1 && (!outFile || outFile.startsWith('-'))) {
+    console.error('Error: --out requires a file path.');
+    printUsage();
+    process.exit(1);
+  }
+
+  // Positional args after the command (exclude flag values by index, not value)
+  const positional = args.slice(1).filter((a, i) => {
+    const absI = i + 1; // offset back to args-relative index
+    return !a.startsWith('--') && absI !== outValueIndex;
+  });
 
   if (positional.length < 1) {
     console.error('Error: <source-file> is required.');
@@ -305,18 +315,18 @@ function main(argv: string[]): void {
     );
   }
 
+  // Determine output path (needed for import path calculation even with --stdout)
+  const outputPath = outFile
+    ? resolve(outFile)
+    : resolve(dirname(sourceFilePath), `${sourceIface.name}Mapper.ts`);
+
   // Generate mapper code
-  const code = generateMapper(sourceFilePath, sourceIface, targetIface);
+  const code = generateMapper(sourceFilePath, outputPath, sourceIface, targetIface);
 
   if (stdoutFlag) {
     process.stdout.write(code);
     return;
   }
-
-  // Determine output path
-  const outputPath = outFile
-    ? resolve(outFile)
-    : resolve(dirname(sourceFilePath), `${sourceIface.name}Mapper.ts`);
 
   if (existsSync(outputPath)) {
     console.error(`Error: Output file already exists: ${outputPath}`);
