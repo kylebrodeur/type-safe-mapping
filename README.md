@@ -14,6 +14,7 @@ Transform data between different shapes (API ↔ Domain) without writing repetit
 
 - [Why?](#why)
 - [Quick Start](#quick-start)
+- [CLI](#cli)
 - [Key Features](#key-features)
 - [Use Cases](#use-cases)
 - [API Reference](#api-reference)
@@ -90,6 +91,62 @@ const api = mapper.reverseMap({ isEnterprise: false, commerceType: 'B2C' });
 - **Bidirectional**: Map from external → internal and internal → external
 - **Optional Fields**: Handles optional values correctly in both directions
 - **Zero Dependencies**: No runtime dependencies
+- **AI-Ready CLI**: Generate mapper boilerplate from existing TypeScript interfaces
+
+## CLI
+
+Generate a type-safe mapper from two existing TypeScript interface files:
+
+```bash
+npx @kylebrodeur/type-safe-mapping init <source-file> <target-file>
+```
+
+The CLI reads both files, auto-matches fields where possible (e.g. `first_name` → `firstName`),
+and writes a ready-to-edit mapper file.
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `--stdout` | Print generated code to stdout instead of writing a file |
+| `--out <path>` | Write the output to a specific file path |
+
+### Examples
+
+```bash
+# Generate ApiUserMapper.ts next to ApiUser.ts
+npx @kylebrodeur/type-safe-mapping init ./src/types/ApiUser.ts ./src/models/User.ts
+
+# Preview without writing (great for AI agents)
+npx @kylebrodeur/type-safe-mapping init ./src/types/ApiUser.ts ./src/models/User.ts --stdout
+
+# Generate from source only (all fields as TODOs)
+npx @kylebrodeur/type-safe-mapping init ./src/types/ApiUser.ts --stdout
+
+# Write to a specific path
+npx @kylebrodeur/type-safe-mapping init ./src/types/ApiUser.ts ./src/models/User.ts --out ./src/mappers/UserMapper.ts
+```
+
+### Generated Output
+
+```typescript
+import { MappedServiceBase, MappedType } from '@kylebrodeur/type-safe-mapping';
+import type { ApiUser } from './ApiUser.js';
+
+const fieldMapping = {
+  // TODO: user_id: 'targetFieldName',
+  first_name: 'firstName',
+  last_name: 'lastName',
+} as const;
+
+export type User = MappedType<ApiUser, typeof fieldMapping>;
+
+export class ApiUserMapper extends MappedServiceBase<ApiUser, typeof fieldMapping> {
+  protected fieldMapping = fieldMapping;
+}
+```
+
+Fill in any `TODO` entries and run `tsc --noEmit` to verify type safety.
 
 ## API Reference
 

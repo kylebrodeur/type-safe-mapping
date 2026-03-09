@@ -30,7 +30,8 @@
     "dist",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "AI.md"
   ],
   "repository": {
     "type": "git",
@@ -54,7 +55,11 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
+  "bin": {
+    "type-safe-mapping": "./dist/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.3",
     "typescript": "^5.9.3",

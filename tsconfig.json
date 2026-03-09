@@ -6,7 +6,8 @@
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["tests", ".github", ".agent"]
