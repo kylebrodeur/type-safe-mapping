@@ -101,6 +101,17 @@ describe('MappedServiceBase', () => {
       expect(() => mapper.map({}, { validate: false })).not.toThrow();
     });
 
+    it('passes validation for fields explicitly set to undefined, but omits them from output', () => {
+      // `key in source` is true even when the value is undefined, so validation passes.
+      // However, the mapping loop skips undefined values, so the field is absent in the result.
+      const result = mapper.map(
+        { custom_a: undefined, custom_b: 'B2B' } as unknown as ApiRow,
+        { validate: true },
+      );
+      expect('isEnterprise' in result).toBe(false);
+      expect(result).toEqual({ commerceType: 'B2B' });
+    });
+
     it('calls validateWith when provided without validate flag', () => {
       const customValidator = vi.fn();
       mapper.map({ custom_a: true, custom_b: 'B2B' }, { validateWith: customValidator });
@@ -110,6 +121,16 @@ describe('MappedServiceBase', () => {
     it('calls validateWith when provided alongside validate: true', () => {
       const customValidator = vi.fn();
       mapper.map({ custom_a: true, custom_b: 'B2B' }, { validate: true, validateWith: customValidator });
+      expect(customValidator).toHaveBeenCalledOnce();
+    });
+
+    it('calls validateWith even when built-in validation fails', () => {
+      // validateWith runs first, so it is always called regardless of whether
+      // the built-in validate check subsequently throws.
+      const customValidator = vi.fn();
+      expect(() =>
+        mapper.map({ custom_a: true }, { validate: true, validateWith: customValidator }),
+      ).toThrow('Missing required field');
       expect(customValidator).toHaveBeenCalledOnce();
     });
 

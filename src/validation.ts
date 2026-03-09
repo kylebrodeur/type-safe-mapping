@@ -14,8 +14,9 @@ export interface MapOptions {
   /**
    * Allow fields in the source that are not part of the mapping. Default: `true`.
    *
-   * Only checked when `validate` is `true`. When set to `false`, an error is thrown
-   * if the source contains fields that are not defined in the mapping.
+   * Only has effect when `validate` is `true` (or when calling `validateMapping()`
+   * directly). When set to `false`, an error is thrown if the source contains
+   * fields that are not defined in the mapping.
    */
   allowUnknownFields?: boolean;
 
@@ -63,7 +64,8 @@ export function validateMapping(
 
   // Check for unmapped (unknown) fields.
   if (options.allowUnknownFields === false) {
-    const unknownFields = Object.keys(source).filter((key) => !expectedKeys.includes(key));
+    const expectedSet = new Set(expectedKeys);
+    const unknownFields = Object.keys(source).filter((key) => !expectedSet.has(key));
     for (const field of unknownFields) {
       errors.push(`Unmapped field \`${field}\` is not allowed.`);
     }
