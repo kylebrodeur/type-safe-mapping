@@ -53,17 +53,18 @@ export function validateMapping(
   options: Pick<MapOptions, 'allowUnknownFields'>,
 ): void {
   const errors: string[] = [];
+  const expectedKeySet = new Set(expectedKeys);
 
   // Validate presence of all expected (mapped) fields.
   for (const key of expectedKeys) {
-    if (!(key in source)) {
+    if (!Object.prototype.hasOwnProperty.call(source, key)) {
       errors.push(`Missing required field \`${key}\` in source.`);
     }
   }
 
   // Check for unmapped (unknown) fields.
   if (options.allowUnknownFields === false) {
-    const unknownFields = Object.keys(source).filter((key) => !expectedKeys.includes(key));
+    const unknownFields = Object.keys(source).filter((key) => !expectedKeySet.has(key));
     for (const field of unknownFields) {
       errors.push(`Unmapped field \`${field}\` is not allowed.`);
     }

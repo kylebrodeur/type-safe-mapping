@@ -113,6 +113,15 @@ describe('MappedServiceBase', () => {
       expect(customValidator).toHaveBeenCalledOnce();
     });
 
+    it('calls validateWith even when built-in validation would throw', () => {
+      const customValidator = vi.fn();
+      // custom_b is missing — built-in validation will throw, but validateWith must still run first
+      expect(() =>
+        mapper.map({ custom_a: true }, { validate: true, validateWith: customValidator }),
+      ).toThrow('Validation failed:');
+      expect(customValidator).toHaveBeenCalledOnce();
+    });
+
     it('propagates errors thrown by validateWith', () => {
       expect(() =>
         mapper.map(
@@ -193,5 +202,12 @@ describe('validateMapping utility', () => {
     expect(errorMessage).toContain('Missing required field `a`');
     expect(errorMessage).toContain('Missing required field `b`');
     expect(errorMessage).toContain('Unmapped field `c`');
+  });
+
+  it('does not treat inherited prototype properties as present fields', () => {
+    // 'toString' exists on every object's prototype chain but must not be treated as an own field
+    expect(() => validateMapping({}, ['toString'], {})).toThrow(
+      'Missing required field `toString` in source.',
+    );
   });
 });

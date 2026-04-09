@@ -13,16 +13,16 @@ export abstract class MappedServiceBase<
   protected abstract fieldMapping: TMapping;
 
   map(source: Partial<TSource>, options: MapOptions = {}): MappedType<TSource, TMapping> {
+    if (options.validateWith) {
+      options.validateWith(source);
+    }
+
     if (options.validate) {
       validateMapping(
         source as Record<string, unknown>,
         Object.keys(this.fieldMapping),
         options,
       );
-    }
-
-    if (options.validateWith) {
-      options.validateWith(source);
     }
 
     const result = {} as MappedType<TSource, TMapping>;
@@ -44,16 +44,16 @@ export abstract class MappedServiceBase<
     target: Partial<MappedType<TSource, TMapping>>,
     options: MapOptions = {},
   ): Partial<TSource> {
+    if (options.validateWith) {
+      options.validateWith(target);
+    }
+
     if (options.validate) {
       validateMapping(
         target as Record<string, unknown>,
         Object.values(this.fieldMapping) as string[],
         options,
       );
-    }
-
-    if (options.validateWith) {
-      options.validateWith(target);
     }
 
     const result = {} as Partial<TSource>;
