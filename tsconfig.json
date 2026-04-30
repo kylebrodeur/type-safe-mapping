@@ -1,13 +1,19 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
     "outDir": "./dist",
     "rootDir": "./src",
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": ["src/**/*", "tests/**/*"],
-  "exclude": [".github", ".agent"]
+  "include": ["src/**/*"],
+  "exclude": ["tests", ".github", ".agent"]
 }
