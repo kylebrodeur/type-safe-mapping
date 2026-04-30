@@ -16,8 +16,11 @@ Transform data between different shapes (API ↔ Domain) without writing repetit
 - [Quick Start](#quick-start)
 - [Key Features](#key-features)
 - [Validation](#validation)
-- [Use Cases](#use-cases)
+- [Advanced Features](#advanced-features)
 - [API Reference](#api-reference)
+- [Key Introspection](#key-introspection)
+- [Constructor Injection (Factory Pattern)](#constructor-injection-factory-pattern)
+- [Use Cases](#use-cases)
 - [Important Notes](#important-notes)
 - [Contributing](#contributing)
 - [License](#license)
@@ -252,6 +255,8 @@ Abstract base class for creating type-safe field mappers.
 
 - `map(source: Partial<TSource>, options?: MapOptions): MappedType<TSource, TMapping>` - Transform external to internal
 - `reverseMap(target: Partial<MappedType<TSource, TMapping>>, options?: MapOptions): Partial<TSource>` - Transform internal to external
+- `getAllKeys(): { external: string[]; internal: string[] }` - Get arrays of all external and internal field names
+- `getKeySet(): Set<string>` - Get a Set containing all field names (external and internal combined)
 
 ### `MapOptions`
 
@@ -266,6 +271,42 @@ interface MapOptions {
   stripUndefined?: boolean;                // Exclude undefined values from mapping (default: true)
 }
 ```
+
+### `FieldMapper<TSource, TMapping>`
+
+A concrete implementation of `MappedServiceBase` that accepts field mapping via constructor.
+
+```typescript
+import { FieldMapper } from '@kylebrodeur/type-safe-mapping';
+
+const mapping = { external_field: 'internalField' } as const;
+const mapper = new FieldMapper(mapping);
+```
+
+**Type Parameters:**
+- `TSource`: The source object type
+- `TMapping`: The field mapping definition (use `typeof yourMapping`)
+
+**Constructor:**
+- `new FieldMapper(fieldMapping: TMapping)`
+
+All methods from `MappedServiceBase` are available (`map`, `reverseMap`, `getAllKeys`, `getKeySet`).
+
+### `createMapper(fieldMapping)`
+
+Factory function that creates a `FieldMapper` instance.
+
+```typescript
+import { createMapper } from '@kylebrodeur/type-safe-mapping';
+
+const mapper = createMapper({ api_id: 'id', api_name: 'name' } as const);
+const result = mapper.map({ api_id: '123', api_name: 'Test' });
+```
+
+**Parameters:**
+- `fieldMapping`: The field mapping definition with `as const` assertion
+
+**Returns:** A `FieldMapper` instance
 
 ### `validateMapping(source, expectedKeys, options)`
 
@@ -293,6 +334,108 @@ Type constraint for valid field mappings: `Record<TExternal, keyof TSource>`
 ### `ReverseMapping<TSource, M, Key>`
 
 Internal type utility for reverse lookup in field mappings.
+
+## Key Introspection
+
+Sometimes you need to enumerate all fields involved in a mapping (both external and internal) for operations like purging, filtering, or excluding mapped fields from other operations.
+
+### `getAllKeys()`
+
+Returns an object with separate arrays for external and internal field names:
+
+```typescript
+const mapper = new UserMapper();
+const keys = mapper.getAllKeys();
+// {
+//   external: ['custom_a', 'custom_b'],
+//   internal: ['isEnterprise', 'commerceType']
+// }
+```
+
+**Use cases:**
+- Generating documentation or field lists
+- Creating exclusion/inclusion filters
+- Debugging which fields are in the mapping
+
+### `getKeySet()`
+
+Returns a `Set<string>` containing all keys from both directions:
+
+```typescript
+const mapper = new UserMapper();
+const allKeys = mapper.getKeySet();
+// Set(4) { 'custom_a', 'custom_b', 'isEnterprise', 'commerceType' }
+```
+
+**Use cases:**
+- Filtering out all mapped fields from an object
+- Checking if a field name is part of the mapping (in either direction)
+- Purging mapped data before saving to avoid duplication
+
+**Example: Purge mapped fields**
+
+```typescript
+const allMappedKeys = mapper.getKeySet();
+const data = { custom_a: true, isEnterprise: false, unrelated: 'keep' };
+
+const filtered = Object.fromEntries(
+  Object.entries(data).filter(([key]) => !allMappedKeys.has(key))
+);
+// { unrelated: 'keep' }
+```
+
+## Constructor Injection (Factory Pattern)
+
+The traditional pattern requires creating a subclass and defining `protected fieldMapping`:
+
+```typescript
+class UserMapper extends MappedServiceBase<ApiRow, typeof fieldMapping> {
+  protected fieldMapping = fieldMapping;
+}
+```
+
+For simpler use cases, you can use **`FieldMapper`** or **`createMapper()`** for inline mapper creation without subclassing:
+
+### `FieldMapper<TSource, TMapping>`
+
+A concrete mapper implementation that accepts the field mapping in its constructor:
+
+```typescript
+import { FieldMapper } from '@kylebrodeur/type-safe-mapping';
+
+const mapping = { custom_a: 'isEnterprise', custom_b: 'commerceType' } as const;
+const mapper = new FieldMapper(mapping);
+
+const result = mapper.map({ custom_a: true, custom_b: 'B2B' });
+// { isEnterprise: true, commerceType: 'B2B' }
+```
+
+### `createMapper(mapping)`
+
+A factory function that creates a `FieldMapper` instance. Convenient for inline usage:
+
+```typescript
+import { createMapper } from '@kylebrodeur/type-safe-mapping';
+
+const mapper = createMapper({ api_id: 'id', api_name: 'name' } as const);
+
+const user = mapper.map({ api_id: '123', api_name: 'John' });
+// { id: '123', name: 'John' }
+```
+
+### When to Use Constructor Injection
+
+✅ **Use `FieldMapper` / `createMapper()` when:**
+- You need a quick mapper for a one-off transformation
+- Your mapping logic is simple and doesn't need extra methods
+- You want to avoid creating a class hierarchy
+
+❌ **Use the subclass pattern when:**
+- You need to add custom transformation methods or business logic
+- You want to encapsulate mapper behavior in a class with methods
+- Your mapper is a core part of your domain layer
+
+Both approaches support all mapper methods (`map`, `reverseMap`, `getAllKeys`, `getKeySet`) and validation options.
 
 ## Use Cases
 

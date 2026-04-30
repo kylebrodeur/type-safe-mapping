@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 
-import { MappedServiceBase } from '../src/MappedServiceBase';
+import { MappedServiceBase, FieldMapper, createMapper } from '../src/MappedServiceBase';
 import { MappedType } from '../src/types';
 import { validateMapping } from '../src/validation';
 
@@ -211,3 +211,143 @@ describe('validateMapping utility', () => {
     );
   });
 });
+
+describe('Key introspection methods', () => {
+  const mapper = new UserMapper();
+
+  describe('getAllKeys()', () => {
+    it('returns separate arrays for external and internal keys', () => {
+      const keys = mapper.getAllKeys();
+
+      expect(keys).toEqual({
+        external: ['custom_a', 'custom_b'],
+        internal: ['isEnterprise', 'commerceType'],
+      });
+    });
+
+    it('returns arrays (not sets or other iterables)', () => {
+      const keys = mapper.getAllKeys();
+
+      expect(Array.isArray(keys.external)).toBe(true);
+      expect(Array.isArray(keys.internal)).toBe(true);
+    });
+  });
+
+  describe('getKeySet()', () => {
+    it('returns a Set containing all keys from both directions', () => {
+      const keySet = mapper.getKeySet();
+
+      expect(keySet).toBeInstanceOf(Set);
+      expect(keySet.size).toBe(4);
+      expect(keySet.has('custom_a')).toBe(true);
+      expect(keySet.has('custom_b')).toBe(true);
+      expect(keySet.has('isEnterprise')).toBe(true);
+      expect(keySet.has('commerceType')).toBe(true);
+    });
+
+    it('can be used for purge/exclusion operations', () => {
+      const allKeys = mapper.getKeySet();
+      const data = {
+        custom_a: true,
+        custom_b: 'B2B',
+        isEnterprise: false,
+        commerceType: 'B2C',
+        unrelated: 'keep this',
+      };
+
+      // Filter out all keys in the mapping
+      const filtered = Object.fromEntries(
+        Object.entries(data).filter(([key]) => !allKeys.has(key)),
+      );
+
+      expect(filtered).toEqual({ unrelated: 'keep this' });
+    });
+  });
+});
+
+describe('FieldMapper (constructor-based mapper)', () => {
+  const mapper = new FieldMapper(fieldMapping);
+
+  it('maps external to internal just like subclass pattern', () => {
+    const result = mapper.map({ custom_a: true, custom_b: 'B2B' });
+
+    expect(result).toEqual({ isEnterprise: true, commerceType: 'B2B' });
+  });
+
+  it('reverse maps internal to external', () => {
+    const result = mapper.reverseMap({ isEnterprise: false, commerceType: 'B2C' });
+
+    expect(result).toEqual({ custom_a: false, custom_b: 'B2C' });
+  });
+
+  it('supports getAllKeys()', () => {
+    const keys = mapper.getAllKeys();
+
+    expect(keys).toEqual({
+      external: ['custom_a', 'custom_b'],
+      internal: ['isEnterprise', 'commerceType'],
+    });
+  });
+
+  it('supports getKeySet()', () => {
+    const keySet = mapper.getKeySet();
+
+    expect(keySet.size).toBe(4);
+    expect(keySet.has('custom_a')).toBe(true);
+    expect(keySet.has('isEnterprise')).toBe(true);
+  });
+
+  it('supports validation options', () => {
+    expect(() =>
+      mapper.map({ custom_a: true, custom_b: 'B2B' }, { validate: true }),
+    ).not.toThrow();
+
+    expect(() => mapper.map({ custom_a: true }, { validate: true })).toThrow(
+      'Missing required field `custom_b` in source.',
+    );
+  });
+
+  it('can be created inline without subclassing', () => {
+    const inlineMapping = { field_x: 'x', field_y: 'y' } as const;
+    const inlineMapper = new FieldMapper(inlineMapping);
+
+    const result = inlineMapper.map({ field_x: 1, field_y: 2 });
+
+    expect(result).toEqual({ x: 1, y: 2 });
+  });
+});
+
+describe('createMapper() factory function', () => {
+  it('creates a FieldMapper instance', () => {
+    const mapper = createMapper(fieldMapping);
+
+    expect(mapper).toBeInstanceOf(FieldMapper);
+    expect(mapper).toBeInstanceOf(MappedServiceBase);
+  });
+
+  it('works identically to new FieldMapper()', () => {
+    const mapper1 = createMapper(fieldMapping);
+    const mapper2 = new FieldMapper(fieldMapping);
+
+    const input = { custom_a: true, custom_b: 'B2B' };
+    expect(mapper1.map(input)).toEqual(mapper2.map(input));
+  });
+
+  it('enables inline mapper creation with type inference', () => {
+    const mapper = createMapper({ api_id: 'id', api_name: 'name' } as const);
+
+    const result = mapper.map({ api_id: '123', api_name: 'Test' });
+
+    expect(result).toEqual({ id: '123', name: 'Test' });
+  });
+
+  it('supports all mapper methods', () => {
+    const mapper = createMapper(fieldMapping);
+
+    expect(typeof mapper.map).toBe('function');
+    expect(typeof mapper.reverseMap).toBe('function');
+    expect(typeof mapper.getAllKeys).toBe('function');
+    expect(typeof mapper.getKeySet).toBe('function');
+  });
+});
+

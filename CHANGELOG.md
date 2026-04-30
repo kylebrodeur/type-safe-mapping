@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-01
+
+### Added
+- **Key introspection methods**: New `getAllKeys()` and `getKeySet()` methods for enumerating all external and internal field names in a mapping
+  - `getAllKeys()` returns `{ external: string[], internal: string[] }` for accessing field lists separately
+  - `getKeySet()` returns `Set<string>` containing all field names for filtering/purging operations
+- **Constructor injection pattern**: New `FieldMapper` class and `createMapper()` factory for inline mapper creation without subclassing
+  - `FieldMapper<TSource, TMapping>` accepts field mapping in constructor
+  - `createMapper(mapping)` factory function provides convenient inline syntax
+  - Alternative to traditional `extends MappedServiceBase` pattern for simpler use cases
+
+### Documentation
+- Added "Key Introspection" section with examples for field enumeration and filtering
+- Added "Constructor Injection (Factory Pattern)" section explaining `FieldMapper` and `createMapper()`
+- Updated API Reference to document new methods and classes
+- Added migration guidance for when to use each pattern
+
 ## [0.2.0] - 2026-04-30
 
 ### Added
@@ -37,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for optional fields
 - Bidirectional mapping capabilities
 
+[0.3.0]: https://github.com/kylebrodeur/type-safe-mapping/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kylebrodeur/type-safe-mapping/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/kylebrodeur/type-safe-mapping/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kylebrodeur/type-safe-mapping/releases/tag/v0.1.0
