@@ -1,5 +1,6 @@
 import { MapOptions, validateMapping } from './validation.js';
 import { MappedType, MappingDefinition } from './types.js';
+import { getPath, setPath } from './utils.js';
 
 type MappingEntries<
   TSource extends Record<string, unknown>,
@@ -13,6 +14,10 @@ export abstract class MappedServiceBase<
   protected abstract fieldMapping: TMapping;
 
   map(source: Partial<TSource>, options: MapOptions = {}): MappedType<TSource, TMapping> {
+    if (!this.fieldMapping) {
+      throw new Error('fieldMapping is not initialized. Ensure the subclass sets this property.');
+    }
+
     if (options.validateWith) {
       options.validateWith(source);
     }
@@ -25,15 +30,17 @@ export abstract class MappedServiceBase<
       );
     }
 
-    const result = {} as MappedType<TSource, TMapping>;
+    const result = (options.allowPassThrough ? { ...source } : {}) as MappedType<TSource, TMapping>;
 
     for (const [externalKey, internalKey] of Object.entries(this.fieldMapping) as MappingEntries<
       TSource,
       TMapping
     >) {
-      const value = source[externalKey];
-      if (value !== undefined) {
-        result[internalKey] = value as TSource[typeof externalKey];
+      const extStr = externalKey as string;
+      const intStr = internalKey as string;
+      const value = getPath(source, extStr);
+      if (value !== undefined || options.stripUndefined === false) {
+        setPath(result, intStr, value);
       }
     }
 
@@ -44,6 +51,10 @@ export abstract class MappedServiceBase<
     target: Partial<MappedType<TSource, TMapping>>,
     options: MapOptions = {},
   ): Partial<TSource> {
+    if (!this.fieldMapping) {
+      throw new Error('fieldMapping is not initialized. Ensure the subclass sets this property.');
+    }
+
     if (options.validateWith) {
       options.validateWith(target);
     }
@@ -56,15 +67,17 @@ export abstract class MappedServiceBase<
       );
     }
 
-    const result = {} as Partial<TSource>;
+    const result = (options.allowPassThrough ? { ...target } : {}) as Partial<TSource>;
 
     for (const [externalKey, internalKey] of Object.entries(this.fieldMapping) as MappingEntries<
       TSource,
       TMapping
     >) {
-      const value = target[internalKey];
-      if (value !== undefined) {
-        result[externalKey] = value as TSource[typeof externalKey];
+      const extStr = externalKey as string;
+      const intStr = internalKey as string;
+      const value = getPath(target, intStr);
+      if (value !== undefined || options.stripUndefined === false) {
+        setPath(result, extStr, value);
       }
     }
 

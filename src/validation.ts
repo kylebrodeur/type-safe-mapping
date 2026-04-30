@@ -33,7 +33,21 @@ export interface MapOptions {
    * ```
    */
   validateWith?: (data: unknown) => void;
+
+  /**
+   * Allow unmapped properties to pass through unaltered to the resulting object.
+   * Default: `false`.
+   */
+  allowPassThrough?: boolean;
+
+  /**
+   * Automatically strip `undefined` values during mapping instead of copying them.
+   * Default: `true` (for backward compatibility).
+   */
+  stripUndefined?: boolean;
 }
+
+import { hasPath } from './utils.js';
 
 /**
  * Validates a source object against a set of expected keys and the provided options.
@@ -57,14 +71,15 @@ export function validateMapping(
 
   // Validate presence of all expected (mapped) fields.
   for (const key of expectedKeys) {
-    if (!Object.prototype.hasOwnProperty.call(source, key)) {
+    if (!hasPath(source, key)) {
       errors.push(`Missing required field \`${key}\` in source.`);
     }
   }
 
   // Check for unmapped (unknown) fields.
   if (options.allowUnknownFields === false) {
-    const unknownFields = Object.keys(source).filter((key) => !expectedKeySet.has(key));
+    const expectedTopLevelKeys = new Set(expectedKeys.map((k) => k.split('.')[0]));
+    const unknownFields = Object.keys(source).filter((key) => !expectedTopLevelKeys.has(key));
     for (const field of unknownFields) {
       errors.push(`Unmapped field \`${field}\` is not allowed.`);
     }
